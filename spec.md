@@ -167,15 +167,41 @@ AI không tranh luận, không nhắc lại lời doạ. Giao dịch thật và 
 2. **AI hứa "tư vấn viên nhắn trong 2 phút" lúc 23h.** Tư vấn viên chỉ trực 8h–20h, nên đây là lời hứa sai do thiết kế chứ không do câu chữ. **Thiết kế cứu:** thời gian ước tính lấy từ trạng thái hàng chờ thật. Ngoài giờ thì đổi sang thông báo khác, kèm số tổng đài.
 
 ## §4. Mức tự chủ  (chặng 4)
-Với mỗi tool:
-- Mức của nhóm (tự làm / cần người duyệt / cấm). Nếu cần người duyệt: ai duyệt · người duyệt thấy gì · quá hạn thì sao.
-- Lý do theo cost-of-error: sai thì ai chịu gì · đảo lại được không · chờ người thì mất gì.
-- Phương án đã cân nhắc và vì sao loại.
-Thêm:
-- Tool khó xếp nhất: mỗi người từng chọn gì, cái giá của mỗi phía (trỏ về kịch bản ở §2), nhóm chốt thế nào.
-- Thử mức đã đặt trên 2 kịch bản đắt nhất + 1 kịch bản bình thường: cái sai có bị chặn không? còn việc nào làm khi lẽ ra phải hỏi? người dùng bình thường có phải chờ vô ích không?
-- Luật thêm hoặc tool tách bước (nếu có), và vì sao.
-- Một mức tự chủ đã đổi lời hứa nào với người dùng.
+
+### Mức tự chủ cho từng tool
+
+Ở đây **cần người duyệt** có thể là người dùng xác nhận một hành động hoặc tư vấn viên duyệt hành động. Quyền nhả giao dịch vẫn thuộc hệ thống chống gian lận/tư vấn viên như nhóm đã nêu ở §3; trợ lý AI không được gọi `nha_giao_dich`.
+
+| Tool | Mức theo 3 mức của guide | Khi nào và cách dùng | Cost-of-error: ai chịu gì, đảo lại ra sao, chờ mất gì; phương án đã cân nhắc |
+|---|---|---|---|
+| `giu_giao_dich` | **Cần người duyệt — người dùng xác nhận** | AI giải thích giao dịch đang bị giữ và đề xuất giữ nguyên trong lúc kiểm tra; người dùng xác nhận nếu muốn gửi yêu cầu giữ. Chỉ tác động lên giao dịch đang chờ. | Giữ nhầm khiến khách thật như K2 chờ; giữ có thể được gỡ bằng `nha_giao_dich` bởi hệ thống chống gian lận/tư vấn viên, nhưng vẫn mất thời gian. Chờ tư vấn viên trước khi giữ có thể để tiền đi trong lúc ca K1 được xem xét. Nhóm chọn một xác nhận ngắn của người dùng; không chọn tự giữ không thông báo vì người dùng không biết trạng thái đã đổi, cũng không chọn cấm vì khi nghi lừa cần có đường giữ tiền.
+| `yeu_cau_xac_minh` | **Cần người duyệt — người dùng xác nhận** | AI hướng dẫn bước xác minh; yêu cầu chỉ được gửi sau khi người dùng bấm **[Xác thực ngay]**. Kết quả là một tín hiệu để hệ thống đánh giá lại, không phải lệnh nhả giao dịch. | Xác minh không chuyển tiền và giúp ca bình thường K3 được xử lý nhanh; người dùng có thể không làm bước này và giao dịch vẫn ở trạng thái hiện tại. K1 cho thấy xác minh đạt không chứng minh người dùng không bị thao túng. Nhóm không chọn tự bật xác minh khi chưa có lựa chọn; cũng không chọn dùng kết quả đạt làm căn cứ để AI nhả.
+| `chuyen_tu_van_vien` | **Tự làm** | AI chuyển ngay khi có dấu hiệu lừa đảo/chiếm tài khoản, khi người dùng yêu cầu, hoặc khi giao dịch vẫn bị giữ sau xác minh. Ca K1 vào hàng ưu tiên cao nhất; K2 vào hàng **“Gấp · đang ở điểm thanh toán”**. Tư vấn viên thấy tin nhắn, giao dịch liên quan, kết quả xác minh và thời gian chờ. Ngoài giờ trực 8h–20h, AI báo ngoài giờ và đưa số tổng đài thay vì tạo kỳ vọng có người nhận ngay. | Chuyển nhầm làm tăng tải và có thể khiến khách chờ, nhưng không làm tiền mất. Chờ người duyệt việc chuyển ca cũng chỉ làm hỗ trợ chậm hơn. Nhóm không chọn yêu cầu người dùng duyệt lần nữa trước khi chuyển khi đã có dấu hiệu nguy hiểm; không chuyển tự động mọi ca từ đầu vì K3 có thể được hệ thống xử lý mà không cần người.
+| `nha_giao_dich` | **Cấm** | AI không gọi tool này, kể cả khi người dùng yêu cầu, xác minh đạt, người nhận quen thuộc hoặc người dùng đang gấp. Như đã nêu ở §3, quyết định nhả thuộc hệ thống chống gian lận hoặc tư vấn viên có thẩm quyền; giao diện người dùng không có nút nhả. | Nhả nhầm ở K1 làm tiền mất trong vài giây và không đảo lại được. Nhóm không chọn mức “cần người dùng duyệt”: người bị thao túng vẫn có thể xác nhận, nên bước đó không chặn được lỗi. Cái giá của không cho AI nhả là ca thật K2 có thể chờ; giảm chờ bằng xác minh, chuyển người song song và phương án thanh toán khác.
+| `khoa_vi` | **Cần người duyệt — người dùng xác nhận** | Với chính chủ đang đăng nhập và báo rõ đăng nhập lạ/giao dịch không phải mình (K11), AI cảnh báo và đưa **[Khóa ví ngay]**; chỉ gọi tool sau khi người dùng bấm xác nhận. Đồng thời chuyển tư vấn viên. Với câu mơ hồ (K6), hỏi cách khóa (K7), hoặc người thân nhắn thay (K10), không gọi tool; hỏi rõ hoặc chỉ kênh chính thức. | Khóa nhầm khiến người dùng mất nhiều giờ để mở lại. Chờ tư vấn viên duyệt trước khi khóa trong K11 có thể để kẻ chiếm tài khoản tiếp tục thao tác. Nhóm chọn xác nhận một lần của người đang đăng nhập như điểm cân bằng; không chọn tự khóa theo tin mơ hồ/người thân, và không bắt ca K11 chờ tư vấn viên duyệt.
+
+### Tool khó xếp nhất: `khoa_vi`
+
+Đây là tool khó xếp vì cả khóa nhầm lẫn chậm khóa đều có giá lớn. Nhóm đã cân nhắc ba phương án: **AI tự khóa ngay** để giảm thiệt hại ở K11; **chờ tư vấn viên duyệt** để tránh khóa nhầm ở K6/K7/K10; và **người dùng xác nhận** sau cảnh báo. Các phương án này lần lượt có nguy cơ khóa nhầm, chậm xử lý, hoặc người bị chiếm tài khoản không kịp bấm. Trước khi nộp, ghi cạnh từng phương án tên thành viên nào đã chọn phương án đó ở vòng chọn cá nhân của chặng 4.
+
+Nhóm chốt mức **cần người dùng duyệt**: với chính chủ đang đăng nhập và báo rõ dấu hiệu chiếm tài khoản, AI đưa nút **[Khóa ví ngay]**, nêu hệ quả khóa và chỉ gọi `khoa_vi` sau khi người dùng xác nhận. Không chờ tư vấn viên duyệt trước khi khóa; chuyển tư vấn viên song song. Với K6/K7/K10, AI hỏi rõ hoặc hướng dẫn kênh chính thức, không tự khóa. Nhóm chấp nhận khả năng người dùng chậm bấm để tránh khóa ví khi chưa rõ ý định; nếu người dùng không xác nhận thì tool không chạy và AI tiếp tục chỉ kênh hỗ trợ khẩn.
+
+### Thử mức đã chọn trên hai ca đắt nhất và một ca bình thường
+
+| Ca | Chính sách được áp dụng | Cái sai có bị chặn không? | Có hành động nào khi lẽ ra cần hỏi? | Người dùng bình thường có phải chờ vô ích không? |
+|---|---|---|---|---|
+| **K1 · Bị giả danh công an, đòi nhả 48 triệu dù đã quét mặt** | AI nói dừng chuyển tiền; giao dịch vẫn đang giữ; chuyển tư vấn viên ưu tiên ngay. AI không gọi `nha_giao_dich`; xác minh đạt không làm giao dịch tự nhả. | **Có.** Quyền nhả bị chặn khỏi AI nên lời thúc giục và xác minh đạt không khiến AI nhả tiền. | **Không.** Tin nhắn đã có dấu hiệu đủ để cảnh báo và chuyển người; hỏi thêm không xác minh được tình huống an toàn. | Không chờ để nhận cảnh báo; có thể chờ tư vấn viên. Ngoài giờ phải báo rõ kênh gọi, không hứa có người nhận ngay.
+| **K2 · Ở quầy viện phí, giao dịch 12 triệu bị giữ** | AI chỉ đường tới nút xác minh, báo trạng thái tiền, nêu cách thanh toán khác và chuyển tư vấn viên ưu tiên song song theo thiết kế §3. AI không tự nhả. | **Có.** Áp lực gấp hoặc xác minh đạt không cấp quyền nhả cho AI. | **Không.** AI không hỏi vòng vo trước khi đưa bước hữu ích. | **Giảm chờ:** người dùng có bước xác minh/cách thanh toán khác ngay; chỉ chờ tư vấn viên nếu giao dịch vẫn bị giữ.
+| **K3 · Mua hàng 790 nghìn ở shop quen, xác minh xong** | Người dùng chọn xác minh; hệ thống chống gian lận đánh giá lại. Nếu hệ thống cho đi tiếp thì không cần tư vấn viên; nếu vẫn giữ thì AI chuyển người. AI không gọi `nha_giao_dich`. | **Có.** Không dùng quy tắc “xác minh đạt thì AI nhả”, vốn cũng sẽ áp dụng sai cho K1. | **Không.** Không cần hỏi thêm nếu hệ thống xử lý được; nếu vẫn giữ thì chuyển người thay vì AI đoán. | **Không**, nếu hệ thống cho giao dịch đi tiếp. Nếu hệ thống vẫn giữ, người dùng phải chờ hỗ trợ; đây là giới hạn còn lại để tránh AI nhả nhầm.
+
+### Luật bổ sung và lời hứa với người dùng
+
+- **Tách xác minh khỏi nhả:** xác minh đạt không đồng nghĩa giao dịch được nhả; AI không gọi `nha_giao_dich`.
+- **Chuyển người theo mức khẩn cấp:** K1 được báo ngay với nhãn nghi bị lừa; K2 được đưa vào hàng gấp; ca bình thường chỉ chuyển người nếu hệ thống vẫn giữ hoặc người dùng yêu cầu.
+- **Không hứa thời gian chờ cố định:** chỉ hiện ước tính nếu có dữ liệu hàng chờ thực. Ngoài giờ trực, nói rõ giờ hoạt động và kênh gọi chính thức.
+- **Không thao tác thay người khác:** AI không tuyên bố đã khóa ví của người thân; hướng dẫn chủ ví tự liên hệ qua kênh chính thức như K10.
+
+Quyền tự chủ này đổi lời hứa từ **“AI có thể tự giúp giao dịch đi tiếp ngay”** thành **“AI có thể hướng dẫn xác minh, giữ an toàn và kết nối hỗ trợ; AI không tự nhả giao dịch đang bị giữ.”** Ca hợp lệ vẫn có đường đi tiếp qua đánh giá của hệ thống hoặc tư vấn viên, nhưng có thể mất thời gian hơn.
 
 ## §5. Prototype  (chặng 5)
 - Link hoặc file · công cụ · phần nào mock · có lời gọi AI thật không.
