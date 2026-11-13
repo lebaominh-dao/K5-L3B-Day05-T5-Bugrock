@@ -10,8 +10,6 @@
 
 ## §1. Lát cắt & phạm vi
 
-**Lát cắt (chép từ track T5).** Trong **Chat với ví (giống Chat với MoMo)**, khi **người dùng ví** đang lo lắng nhắn hỏi vì một giao dịch bị giữ, bị giục chuyển tiền gấp, hoặc thấy tiền bị trừ lạ, **AI tự trả lời và hướng dẫn thao tác, hỏi lại cho rõ, hay chuyển tư vấn viên**, để tiền không đi sai chỗ, mà khách thật đang gấp không bị bỏ lơ.
-
 | Một người dùng | Một việc | Một quyết định của AI | Một kết quả |
 |---|---|---|---|
 | người dùng ví | lo lắng nhắn hỏi vì giao dịch bị giữ / bị giục chuyển gấp / tiền bị trừ lạ | tự trả lời & hướng dẫn · hỏi lại · chuyển tư vấn viên | tiền không đi sai chỗ, khách thật đang gấp không bị bỏ lơ |
@@ -63,12 +61,110 @@ Nhãn: **nhẹ** (người dùng tự thấy, tự sửa) · **sửa được** 
   - **K3 (đúng vì may)** thực chất cùng lỗi gốc với K1 ("xác thực đạt thì nhả"). Nhóm giữ K3 làm **kịch bản bình thường** để thử mức tự chủ ở §4: kiểm tra người dùng bình thường không phải chờ vô ích.
 
 ## §3. Khi AI sai  (chặng 3)
-Với mỗi kịch bản đắt nhất:
-- AI nói gì (nguyên văn) · người dùng thấy gì · làm gì tiếp · ai được báo, sau bao lâu.
-- Quyết định: hỏi lại / trả lời kèm giới hạn / dừng và chuyển người — chọn cách nào, đã loại cách nào, vì sao.
-- Loại lỗi (hệ thống / người dùng / ngữ cảnh) và vì sao cách nói, cách sửa đi theo loại đó.
-- 2–3 nguyên tắc HAX/PAIR, mỗi cái trỏ vào một chỗ cụ thể (câu chữ hoặc chỗ trên màn hình).
-- Lỗi nào sửa câu chữ không cứu được (nếu có), và thiết kế cứu nó thế nào.
+
+**Nguyên tắc chung cho cả hai kịch bản** (chi tiết mức tự chủ ở §4):
+- Trợ lý **không bao giờ** gọi `nha_giao_dich`. Màn hình người dùng **không có nút "Nhả"**. Quyền nhả chỉ có ở hệ thống chống gian lận (sau bước xác thực) hoặc ở tư vấn viên.
+- **Xác thực khuôn mặt đạt không phải điều kiện để nhả.** Đó chỉ là một tín hiệu (rubric riêng T5, ý 2).
+- Bằng chứng hiện cho người dùng chỉ lấy từ **chính lời họ nhắn** và thông tin giao dịch của họ. Không bao giờ hiện tín hiệu hay ngưỡng của hệ thống chống gian lận.
+
+### K1 · Người bị doạ "vụ án" đã quét mặt đúng, đòi nhả 48 triệu
+
+**Đường đi:** failure (AI không được và không nên làm điều người dùng đòi) + correction (người dùng cãi lại AI).
+
+**AI nói (nguyên văn):**
+> Mình là trợ lý tự động (AI) của ví. Bạn **dừng lại**, đừng chuyển khoản này nhé.
+>
+> Công an, viện kiểm sát hay toà án **không bao giờ** gọi điện yêu cầu chuyển tiền vào "tài khoản tạm giữ" để xác minh. Đây là cách lừa đảo rất hay gặp.
+>
+> Khoản **48.000.000đ vẫn đang được giữ trong ví của bạn, tiền chưa đi đâu cả.**
+>
+> Bạn hãy **tắt máy** với người đang gọi. Mình đã chuyển cuộc trò chuyện cho **tư vấn viên (người thật)**, họ sẽ nhắn bạn trong ít phút. Muốn nói chuyện ngay thì bạn gọi **1900 63 68 05**.
+
+**Nếu người dùng cãi lại** ("tôi biết rồi, tôi tự nguyện, nhả ra đi"):
+> Mình không cho khoản này đi tiếp được. Tư vấn viên sẽ nói chuyện với bạn rồi quyết định. Nếu đúng là bạn muốn chuyển thì tư vấn viên vẫn làm được cho bạn. Trong lúc chờ, tiền vẫn an toàn trong ví.
+
+AI không tranh luận, không nhắc lại lời doạ. Giao dịch thật và tự nguyện vẫn có đường đi tiếp qua người, nên AI không phải là người quyết định cuối cùng.
+
+**Người dùng thấy (ngoài câu chữ):**
+- Thanh trạng thái trên cùng: **"48.000.000đ · Đang giữ · Tiền chưa rời ví"**.
+- Thẻ **"Vì sao trợ lý dừng lại"**, trích lại lời người dùng: *"công an gọi"* · *"chuyển sang tk tạm giữ"* · *"họ đang chờ máy"* → "Ba dấu hiệu này thường gặp trong các vụ giả danh cơ quan nhà nước."
+- Thẻ trạng thái chuyển người: **"Tư vấn viên · đang kết nối · ước tính ~2 phút"** (lấy từ hàng chờ thật). Ngoài giờ 8h–20h thì thay bằng "Tư vấn viên trực 8h–20h · giao dịch tiếp tục được giữ · gọi 1900 63 68 05".
+- Hai nút: **[Gọi 1900 63 68 05]** · **[Nhắn thêm cho tư vấn viên]**. **Không có nút Nhả hay Xác thực lại.**
+
+**Người dùng làm gì tiếp:** gọi tổng đài, hoặc chờ tư vấn viên nhắn. **Nếu không làm gì:** giao dịch vẫn bị giữ, tiền không đi. Khi hết hạn giữ, giao dịch tự huỷ và tiền ở lại ví, **không bao giờ tự nhả** (chốt ở §4).
+
+**Ai được báo, sau bao lâu:** tư vấn viên, ngay lúc AI gọi `chuyen_tu_van_vien`, vào hàng **ưu tiên cao nhất "Nghi bị lừa · đang có cuộc gọi"**. Mục tiêu nhận ca dưới 2 phút trong giờ trực. Tư vấn viên thấy:
+- Nguyên văn tin nhắn.
+- Giao dịch: số tiền, người nhận, thời điểm.
+- Kết quả xác thực: **đạt**, kèm dòng cảnh báo "xác thực đạt không loại trừ bị thao túng".
+- Nhãn AI gán ("mạo danh cơ quan nhà nước") và các câu trích làm căn cứ.
+- Nút gọi lại cho khách.
+
+**Quyết định: chọn _dừng và chuyển người_, nói thẳng "dừng lại".**
+| Phương án | Vì sao loại |
+|---|---|
+| **Hỏi lại** ("Bạn có biết người nhận không? Ai yêu cầu bạn chuyển?") | Người bị lừa thường đang có kẻ lừa nhắc bài trên điện thoại, nên câu hỏi nào cũng được trả lời "đúng kịch bản". Mỗi câu hỏi biến AI thành một cửa ải phải vượt qua, chứ không phải người đứng về phía họ. Chính track đã cho thấy xác thực khuôn mặt bị vượt theo cách này. |
+| **Trả lời kèm giới hạn** ("Giao dịch có rủi ro, bạn có chắc không?" + [Nhả] [Huỷ]) | Đẩy quyết định về đúng người đang bị thao túng. Lời người con trong track: *"Lúc đó chỉ cần có ai bảo mẹ dừng lại"*, nghĩa là cần một câu khẳng định, không cần thêm một câu hỏi. |
+| **Chỉ chuyển người, AI im lặng** | Trong lúc chờ, kẻ lừa tiếp tục giục. Câu "dừng lại, tắt máy" phải đến **ngay**. Ngoài giờ trực thì không có người nhận ca. |
+
+**Loại lỗi: lỗi ngữ cảnh.** Hệ thống xác thực chạy đúng thiết kế (đúng mặt chủ ví) nhưng sai với tình huống (chủ ví đang bị thao túng). Hệ quả:
+- *Cách nói:* không xin lỗi vì đã giữ tiền, không nói "bạn đã bị lừa" (đổ lỗi, làm người dùng xấu hổ và phản kháng). Đặt lỗi vào **kẻ lừa** ("đây là cách lừa hay gặp").
+- *Cách sửa:* sửa **thiết kế** chứ không sửa câu chữ: tách "xác thực đạt" khỏi "được nhả", bỏ nút nhả khỏi màn hình người dùng.
+
+### K2 · Người đứng ở quầy viện phí, 12 triệu bị giữ
+
+**Đường đi:** low-confidence. AI không phân biệt được người gấp thật với kịch bản lừa giả làm viện phí, nên không quyết, mà đưa đường nhanh nhất.
+
+**AI nói (nguyên văn):**
+> Mình là trợ lý tự động (AI) của ví. Xin lỗi vì bạn phải chờ. Bạn làm theo thứ tự này nhé:
+>
+> **1.** Bấm **[Xác thực ngay]** bên dưới, quét khuôn mặt khoảng 10 giây.
+> **2.** Nếu xác thực xong mà giao dịch vẫn bị giữ, mình **đã xếp bạn vào hàng ưu tiên**, tư vấn viên sẽ nhắn bạn ngay.
+>
+> Mình không tự cho giao dịch đi tiếp được. Nếu quầy không chờ được, bạn có thể **trả bằng thẻ hoặc tiền mặt**: khoản 12.000.000đ vẫn nằm trong ví, **chưa bị trừ**.
+
+**Sau khi xác thực:**
+- *Hệ thống chống gian lận cho đi tiếp:* "Giao dịch 12.000.000đ **đã hoàn tất** lúc 10:42. Bạn đưa màn hình này cho quầy." Kèm biên nhận.
+- *Vẫn bị giữ:* "Giao dịch vẫn đang giữ. Tư vấn viên **đang xem ca của bạn** (vào hàng lúc 10:41). Tiền chưa bị trừ."
+
+**Người dùng thấy (ngoài câu chữ):**
+- Thanh trạng thái: **"12.000.000đ · Đang giữ · Tiền chưa rời ví"**.
+- Danh sách từng bước, bước đang làm được đánh dấu: ① Xác thực → ② Hệ thống kiểm tra lại → ③ (nếu cần) Tư vấn viên.
+- Nút chính nổi bật: **[Xác thực ngay]**. Nút phụ: **[Thanh toán cách khác]**.
+- Thẻ **"Tư vấn viên · ưu tiên · ước tính ~3 phút"**. Ngoài giờ thì ghi thật: "Ngoài giờ tư vấn viên (8h–20h)", kèm số tổng đài.
+
+**Người dùng làm gì tiếp:** xác thực, hoặc trả bằng cách khác rồi để giao dịch tự huỷ. **Nếu không làm gì:** giao dịch giữ nguyên, tư vấn viên vẫn nhận ca. Không có gì tự đi.
+
+**Ai được báo, sau bao lâu:** AI gọi `chuyen_tu_van_vien` **song song** với `yeu_cau_xac_minh`, không đợi xác thực xong, để không mất thêm một vòng chờ. Ca vào hàng **"Gấp · đang ở điểm thanh toán"**. Nếu xác thực xong mà giao dịch đã được cho đi, ca tự đóng. Tư vấn viên thấy:
+- Nguyên văn tin nhắn.
+- Người nhận: là tài khoản doanh nghiệp đã đăng ký hay tài khoản cá nhân. Chỉ tư vấn viên thấy dòng này, người dùng thì không.
+- Kết quả xác thực.
+- Thời gian khách đã chờ.
+
+**Quyết định: chọn _trả lời kèm giới hạn + chuyển người song song_.**
+| Phương án | Vì sao loại |
+|---|---|
+| **Hỏi lại** ("Bạn thanh toán cho bệnh viện nào? Ai yêu cầu?") | Mỗi câu hỏi tốn thêm thời gian của người đang bị đợi sau lưng, mà câu trả lời không phân biệt được thật hay lừa (kịch bản lừa cũng nói "viện phí"). Đúng điều người dùng trong track than: *"Tôi chỉ cần biết bấm vào đâu"*. |
+| **Chỉ chuyển người** | Phần lớn ca gấp thật được giải quyết bằng một bước xác thực. Bắt mọi ca chờ tư vấn viên là **chờ vô ích**, và ngoài giờ thì không có ai nhận ca. |
+| **AI tự nhả** sau xác thực vì thấy người nhận giống bệnh viện | `nha_giao_dich` không đảo được. Nếu đây là kịch bản lừa thì tiền mất. Đúng thì cũng chỉ là **đúng vì may** (K3). |
+
+**Loại lỗi: lỗi hệ thống** (báo động nhầm của hệ thống chống gian lận: đoán người dùng là rủi ro trong khi họ không phải). Hệ quả:
+- *Cách nói:* nhận trách nhiệm, **xin lỗi ngắn một lần** ("Xin lỗi vì bạn phải chờ"), không bắt người dùng giải thích mình vô tội, không nêu lý do bị giữ.
+- *Cách sửa:* rút ngắn đường ra (một nút xác thực, chuyển người song song) và cho đường lui không phụ thuộc AI (trả bằng cách khác, tiền vẫn còn).
+
+*So với lỗi người dùng* (ví dụ tự gõ sai số tài khoản người nhận): khi đó AI không xin lỗi thay hệ thống, mà chỉ ra chỗ sai và cách sửa. Ba loại lỗi khác nhau nên ba cách nói khác nhau.
+
+### Nguyên tắc HAX/PAIR (mỗi cái trỏ vào chỗ cụ thể)
+
+- **G10 · Thu hẹp phạm vi khi nghi ngờ** → K2: AI không phân biệt được thật hay lừa nên **không quyết**. Nó chỉ đưa một hành động là nút **[Xác thực ngay]**, và giao quyết định nhả cho hệ thống hoặc tư vấn viên. K1: màn hình **không có nút Nhả**.
+- **G11 · Giải thích vì sao** → thẻ **"Vì sao trợ lý dừng lại"** ở K1 trích lại ba câu của chính người dùng làm căn cứ. Người dùng tự kiểm được mà không lộ cách hệ thống phát hiện gian lận (rubric riêng T5, ý 1).
+- **PAIR · Errors + Graceful Failure** → nút **[Thanh toán cách khác]** và dòng *"12.000.000đ vẫn nằm trong ví, chưa bị trừ"* ở K2: khi hệ thống báo động nhầm, người dùng vẫn có đường lui ngay tại quầy, không phải đợi AI hay tư vấn viên.
+- *(Bắt buộc theo luật, không tính vào 2–3 nguyên tắc trên)* **G1 + Điều 11 khoản 1 Luật 134/2025/QH15:** câu đầu mỗi lượt nói "Mình là trợ lý tự động (AI)", và có nhãn **"Trợ lý AI"** trên đầu khung chat.
+
+### Lỗi sửa câu chữ không cứu được
+
+1. **K1: nút "Nhả" trên màn hình người bị lừa.** Dù câu cảnh báo viết hay đến đâu, kẻ lừa đang nói trên điện thoại vẫn thuyết phục mạnh hơn, và người bị thao túng sẽ bấm, giống như họ đã quét mặt. **Thiết kế cứu:** bỏ hẳn nút nhả khỏi màn hình người dùng. `nha_giao_dich` chỉ nằm ở màn hình tư vấn viên (§4). "Xác thực đạt" không bao giờ tự dẫn tới nhả.
+2. **AI hứa "tư vấn viên nhắn trong 2 phút" lúc 23h.** Tư vấn viên chỉ trực 8h–20h, nên đây là lời hứa sai do thiết kế chứ không do câu chữ. **Thiết kế cứu:** thời gian ước tính lấy từ trạng thái hàng chờ thật. Ngoài giờ thì đổi sang thông báo khác, kèm số tổng đài.
 
 ## §4. Mức tự chủ  (chặng 4)
 Với mỗi tool:
