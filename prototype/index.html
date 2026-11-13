@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7fb">
+  <title>Ví An Tâm · Chat demo</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17243a;
+      --muted: #64748b;
+      --line: #e4e9f1;
+      --paper: #fff;
+      --canvas: #f5f7fb;
+      --blue: #1769e0;
+      --blue-dark: #1255b8;
+      --blue-soft: #eef5ff;
+      --red: #b42318;
+      --red-soft: #fff1ef;
+      --amber: #8a4b08;
+      --amber-soft: #fff7e8;
+      --green: #157347;
+      --green-soft: #eaf7ef;
+      --shadow: 0 20px 60px rgba(31, 49, 77, .10);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 20% 0%, rgba(32, 113, 226, .08), transparent 40%),
+        var(--canvas);
+    }
+
+    button, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, textarea:focus-visible, summary:focus-visible {
+      outline: 3px solid rgba(23, 105, 224, .35);
+      outline-offset: 2px;
+    }
+
+    .page { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 36px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+    .brand { display: flex; align-items: center; gap: 11px; }
+    .brand-mark {
+      display: grid; width: 42px; height: 42px; place-items: center;
+      border-radius: 14px; color: #fff; background: linear-gradient(145deg, #1d7af0, #1252bd);
+      box-shadow: 0 7px 18px rgba(23, 105, 224, .24); font-size: 19px; font-weight: 800;
+    }
+    .brand-name { font-size: 16px; font-weight: 800; letter-spacing: -.02em; }
+    .brand-sub { margin-top: 2px; color: var(--muted); font-size: 12px; }
+    .demo-badge { border: 1px solid #d5e4fb; border-radius: 999px; padding: 8px 12px; color: #245c9e; background: #f4f8ff; font-size: 12px; font-weight: 700; }
+
+    .intro { margin: 0 0 16px; }
+    .intro h1 { margin: 0 0 5px; font-size: clamp(22px, 3vw, 29px); letter-spacing: -.04em; }
+    .intro p { max-width: 740px; margin: 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
+    .scenario-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 19px 0 14px; }
+    .scenario-label { margin-right: 3px; color: var(--muted); font-size: 12px; font-weight: 700; }
+    .scenario-tab {
+      border: 1px solid var(--line); border-radius: 999px; padding: 9px 13px;
+      color: #43536b; background: var(--paper); font-size: 12px; font-weight: 700;
+      transition: .15s ease;
+    }
+    .scenario-tab:hover { border-color: #9cbce9; }
+    .scenario-tab[aria-pressed="true"] { border-color: var(--blue); color: #fff; background: var(--blue); }
+
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) 370px; gap: 18px; align-items: start; }
+    .chat-card, .side-card { border: 1px solid rgba(220, 227, 238, .95); border-radius: 20px; background: var(--paper); box-shadow: var(--shadow); }
+    .chat-card { overflow: hidden; }
+    .chat-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 19px; border-bottom: 1px solid var(--line); }
+    .assistant { display: flex; align-items: center; gap: 10px; }
+    .assistant-icon { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 13px; color: var(--blue); background: var(--blue-soft); font-weight: 900; }
+    .assistant-title { font-size: 14px; font-weight: 800; }
+    .assistant-status { display: flex; align-items: center; gap: 6px; margin-top: 3px; color: var(--muted); font-size: 11px; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: #22a06b; }
+    .secure-tag { color: var(--muted); font-size: 11px; white-space: nowrap; }
+    .chat-body { padding: 17px 19px 18px; }
+    .date-line { margin-bottom: 14px; color: #8a96a8; font-size: 10px; text-align: center; }
+    .bubble { max-width: 88%; margin: 9px 0; border-radius: 15px; padding: 12px 14px; font-size: 13px; line-height: 1.55; }
+    .bubble.user { margin-left: auto; border-bottom-right-radius: 5px; color: #fff; background: var(--blue); }
+    .bubble.ai { border: 1px solid var(--line); border-bottom-left-radius: 5px; background: #fff; }
+    .bubble.ai strong { color: #17243a; }
+    .mini-label { margin: 2px 0 5px; color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+    .notice { margin: 13px 0; border: 1px solid #f1c7c2; border-radius: 14px; padding: 13px; color: #74251e; background: var(--red-soft); }
+    .notice-title { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; font-size: 13px; font-weight: 800; }
+    .notice p { margin: 0; font-size: 12px; line-height: 1.55; }
+    .transaction { display: flex; justify-content: space-between; gap: 12px; margin: 13px 0; border: 1px solid var(--line); border-radius: 14px; padding: 12px 13px; background: #fbfcfe; }
+    .transaction-label { margin-bottom: 4px; color: var(--muted); font-size: 10px; }
+    .amount { font-size: 19px; font-weight: 850; letter-spacing: -.03em; }
+    .recipient { margin-top: 4px; color: #54647c; font-size: 11px; }
+    .state-pill { align-self: flex-start; border-radius: 999px; padding: 6px 9px; color: #8a4b08; background: var(--amber-soft); font-size: 10px; font-weight: 800; white-space: nowrap; }
+    .evidence { margin: 12px 0; border: 1px solid #d9e7fa; border-radius: 14px; padding: 12px; background: #f7faff; }
+    .evidence-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 7px; }
+    .evidence-title { font-size: 12px; font-weight: 800; }
+    .certainty { border-radius: 999px; padding: 4px 8px; color: #8a4b08; background: var(--amber-soft); font-size: 10px; font-weight: 800; }
+    .evidence p { margin: 0; color: #4a5b74; font-size: 11px; line-height: 1.5; }
+    .quote-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+    .quote-tags span { border: 1px solid #dce8f7; border-radius: 6px; padding: 4px 6px; color: #385477; background: #fff; font-size: 10px; }
+    .autonomy { display: grid; gap: 7px; margin: 12px 0; }
+    .rule { display: flex; align-items: flex-start; gap: 8px; border-radius: 10px; padding: 9px 10px; background: #f7f9fc; font-size: 11px; line-height: 1.45; }
+    .rule-icon { flex: 0 0 auto; font-size: 13px; }
+    .rule b { display: block; margin-bottom: 1px; font-size: 11px; }
+    .advisor-card { margin: 12px 0; border: 1px solid #cfe7d8; border-radius: 13px; padding: 11px 12px; background: var(--green-soft); }
+    .advisor-head { display: flex; align-items: center; gap: 8px; color: #125c38; font-size: 12px; font-weight: 800; }
+    .advisor-card p { margin: 5px 0 0; color: #426650; font-size: 11px; line-height: 1.5; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 13px; }
+    .btn { display: inline-flex; min-height: 39px; align-items: center; justify-content: center; gap: 7px; border: 1px solid transparent; border-radius: 10px; padding: 9px 12px; font-size: 11px; font-weight: 800; transition: .15s ease; }
+    .btn-primary { color: #fff; background: var(--blue); }
+    .btn-primary:hover { background: var(--blue-dark); }
+    .btn-secondary { border-color: #d7e0ec; color: #31435c; background: #fff; }
+    .btn-secondary:hover { border-color: #9cbce9; background: #f8fbff; }
+    .btn-danger { border-color: #f1c7c2; color: var(--red); background: #fff; }
+    .btn-danger:hover { background: var(--red-soft); }
+    .fine-print { margin: 10px 0 0; color: #8490a2; font-size: 10px; line-height: 1.5; }
+    .chat-footer { border-top: 1px solid var(--line); padding: 11px 16px; color: #7a879a; background: #fbfcfe; font-size: 10px; line-height: 1.5; }
+    .screen-reader { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+
+    .side { display: grid; gap: 12px; }
+    .side-card { padding: 15px; box-shadow: 0 8px 24px rgba(31, 49, 77, .05); }
+    .side-card h2 { margin: 0 0 9px; font-size: 13px; letter-spacing: -.01em; }
+    .side-card p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+    .step-list { display: grid; gap: 8px; margin: 10px 0 0; padding: 0; list-style: none; }
+    .step-list li { display: grid; grid-template-columns: 23px 1fr; gap: 8px; color: #53637a; font-size: 11px; line-height: 1.45; }
+    .step-num { display: grid; width: 21px; height: 21px; place-items: center; border-radius: 7px; color: #245c9e; background: var(--blue-soft); font-size: 10px; font-weight: 900; }
+    .legend { display: grid; gap: 7px; margin-top: 9px; }
+    .legend-row { display: flex; align-items: center; gap: 8px; color: #53637a; font-size: 10px; }
+    .legend-key { width: 9px; height: 9px; border-radius: 3px; background: #2c9b68; }
+    .legend-key.review { background: #e2a72e; }
+    .legend-key.blocked { background: #dc6359; }
+    .untrusted { border-left: 3px solid #e6ad3e; padding-left: 10px; }
+    .composer { margin-top: 12px; }
+    .composer label { display: block; margin-bottom: 6px; color: #42536b; font-size: 11px; font-weight: 800; }
+    .composer textarea { display: block; width: 100%; min-height: 76px; resize: vertical; border: 1px solid #d9e1eb; border-radius: 10px; padding: 10px; color: var(--ink); background: #fff; font-size: 11px; line-height: 1.5; }
+    .composer .actions { margin-top: 7px; }
+    .toast { position: fixed; right: 20px; bottom: 20px; z-index: 5; max-width: min(400px, calc(100vw - 40px)); border: 1px solid #cfe7d8; border-radius: 12px; padding: 12px 15px; color: #125c38; background: #f1fbf4; box-shadow: var(--shadow); font-size: 12px; line-height: 1.5; }
+    .modal-backdrop { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 18px; background: rgba(15, 27, 44, .48); }
+    .modal { width: min(440px, 100%); border: 1px solid var(--line); border-radius: 18px; padding: 20px; background: #fff; box-shadow: 0 28px 80px rgba(15, 27, 44, .25); }
+    .modal h2 { margin: 0 0 8px; font-size: 18px; }
+    .modal p { margin: 0 0 12px; color: #53637a; font-size: 12px; line-height: 1.6; }
+    .modal .transaction { margin: 12px 0; }
+    .modal-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 17px; }
+    .modal-note { border-radius: 10px; padding: 10px; color: #654516; background: var(--amber-soft); font-size: 11px; line-height: 1.5; }
+
+    @media (max-width: 800px) {
+      .page { width: min(620px, calc(100% - 22px)); padding-top: 16px; }
+      .layout { grid-template-columns: 1fr; }
+      .side { grid-template-columns: 1fr 1fr; }
+      .side-card:last-child { grid-column: 1 / -1; }
+    }
+    @media (max-width: 520px) {
+      .page { width: 100%; padding: 10px 0 22px; }
+      .topbar, .intro, .scenario-bar { margin-right: 14px; margin-left: 14px; }
+      .intro p { font-size: 12px; }
+      .scenario-bar { gap: 6px; }
+      .scenario-tab { padding: 8px 10px; font-size: 10px; }
+      .layout { gap: 10px; }
+      .chat-card, .side-card { border-radius: 0; }
+      .chat-head { padding: 12px 14px; }
+      .chat-body { padding: 13px 13px 15px; }
+      .bubble { max-width: 94%; }
+      .side { gap: 8px; }
+      .side-card { padding: 13px; }
+      .secure-tag { font-size: 9px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">A</div>
+        <div>
+          <div class="brand-name">Ví An Tâm</div>
+          <div class="brand-sub">Prototype trợ lý chat · dữ liệu giả</div>
+        </div>
+      </div>
+      <div class="demo-badge">BẢN DEMO · OFFLINE</div>
+    </header>
+
+    <section class="intro" aria-labelledby="page-title">
+      <h1 id="page-title">Một giao dịch đang bị giữ</h1>
+      <p>Trợ lý giúp bạn đi bước an toàn tiếp theo. Bản mô phỏng không kết nối ví, không gửi yêu cầu xác thực và không thực hiện cuộc gọi.</p>
+    </section>
+
+    <nav class="scenario-bar" aria-label="Chọn tình huống demo">
+      <span class="scenario-label">Tình huống:</span>
+      <button class="scenario-tab" type="button" data-case="scam" aria-pressed="true">K1 · Bị giục chuyển tiền</button>
+      <button class="scenario-tab" type="button" data-case="urgent" aria-pressed="false">K2 · Viện phí gấp</button>
+      <button class="scenario-tab" type="button" data-case="unknown" aria-pressed="false">Ca lạ · Tự nhập</button>
+    </nav>
+
+    <main class="layout">
+      <section class="chat-card" aria-label="Màn hình chat minh họa">
+        <header class="chat-head">
+          <div class="assistant">
+            <div class="assistant-icon" aria-hidden="true">AI</div>
+            <div>
+              <div class="assistant-title">Trợ lý tự động (AI)</div>
+              <div class="assistant-status"><span class="dot" aria-hidden="true"></span> Đang hỗ trợ · không phải tư vấn viên</div>
+            </div>
+          </div>
+          <div class="secure-tag">🔒 Dữ liệu dựng</div>
+        </header>
+        <div id="chat-content" class="chat-body" aria-live="polite"></div>
+        <footer class="chat-footer">Đây là prototype học tập, không liên kết với MoMo hay tổ chức tài chính nào. Không nhập OTP, mật khẩu, số thẻ hoặc dữ liệu thật.</footer>
+      </section>
+
+      <aside class="side" aria-label="Giải thích prototype">
+        <section class="side-card">
+          <h2>Luồng demo 4 phút</h2>
+          <p>Chọn K1 để demo bắt buộc. Sau đó chọn K2 hoặc nhập ca lạ để cho thấy cùng một nguyên tắc không làm AI tự nhả giao dịch.</p>
+          <ol class="step-list">
+            <li><span class="step-num">1</span><span>K1: đọc cảnh báo và căn cứ lấy từ chính tin nhắn.</span></li>
+            <li><span class="step-num">2</span><span>Mở phần tư vấn viên nhận để xem người thật thấy gì.</span></li>
+            <li><span class="step-num">3</span><span>Đổi sang K2: bấm xác thực và xem bước duyệt trước khi gửi.</span></li>
+            <li><span class="step-num">4</span><span>Thử ca lạ: nhập câu hỏi về ngưỡng hoặc đòi nhả.</span></li>
+          </ol>
+        </section>
+
+        <section class="side-card">
+          <h2>Quyền của trợ lý</h2>
+          <p>Gắn với các tool đã xếp ở §4; không có nút nhả giao dịch.</p>
+          <div class="legend" aria-label="Chú giải mức tự chủ">
+            <div class="legend-row"><span class="legend-key"></span><span><b>Tự làm:</b> giữ giao dịch, chuyển tư vấn viên</span></div>
+            <div class="legend-row"><span class="legend-key review"></span><span><b>Cần duyệt:</b> xác thực / khóa ví</span></div>
+            <div class="legend-row"><span class="legend-key blocked"></span><span><b>Cấm AI:</b> nhả giao dịch</span></div>
+          </div>
+        </section>
+
+        <section class="side-card">
+          <h2>Ca lạ để thử ngay</h2>
+          <p class="untrusted">Chỉ dùng câu giả lập, không nhập dữ liệu thật. Tin nhắn người dùng không thể thay đổi quyền của AI.</p>
+          <form id="unknown-form" class="composer">
+            <label for="unknown-message">Tin nhắn thử</label>
+            <textarea id="unknown-message" maxlength="400" placeholder="Ví dụ: chuyển dưới bao nhiêu thì không bị giữ?"></textarea>
+            <div class="actions">
+              <button class="btn btn-primary" type="submit">Gửi tin nhắn demo</button>
+              <button class="btn btn-secondary" type="button" id="clear-unknown">Xóa</button>
+            </div>
+          </form>
+        </section>
+      </aside>
+    </main>
+  </div>
+  <div id="overlay-root"></div>
+  <div id="toast-root" aria-live="polite"></div>
+
+  <script>
+    const chat = document.getElementById("chat-content");
+    const overlayRoot = document.getElementById("overlay-root");
+    const toastRoot = document.getElementById("toast-root");
+    const tabs = Array.from(document.querySelectorAll(".scenario-tab"));
+
+    const cases = {
+      scam: {
+        transaction: { amount: "48.000.000đ", recipient: "Tài khoản nhận · chưa xác minh", time: "Hôm nay · 10:42", state: "ĐANG GIỮ" },
+        user: "Công an gọi bảo tài khoản tôi liên quan vụ án, phải chuyển 48 triệu sang tài khoản tạm giữ để xác minh. Tôi quét mặt rồi mà app vẫn giữ, nhả ra giúp tôi, họ đang chờ máy.",
+        render() {
+          return `
+            <div class="date-line">Hôm nay · cuộc trò chuyện về một giao dịch đang chờ</div>
+            <div class="transaction" aria-label="Thông tin giao dịch giả">
+              <div><div class="transaction-label">Giao dịch đang được giữ</div><div class="amount">${this.transaction.amount}</div><div class="recipient">${this.transaction.recipient}<br>${this.transaction.time}</div></div>
+              <span class="state-pill">${this.transaction.state}</span>
+            </div>
+            <div class="bubble user">${this.user}</div>
+            <div class="mini-label">Trợ lý AI · tự chuyển tư vấn viên ưu tiên</div>
+            <div class="notice">
+              <div class="notice-title"><span aria-hidden="true">⛔</span> ① G10 · Dừng lại — đừng chuyển tiền</div>
+              <p>Mình là trợ lý tự động (AI) của ví. Cơ quan công an không yêu cầu chuyển tiền vào “tài khoản tạm giữ” để xác minh. Hãy dừng cuộc gọi với người đang giục bạn. <strong>Tiền vẫn đang được giữ trong ví.</strong></p>
+            </div>
+            <div class="bubble ai">Mình không thể cho giao dịch này đi tiếp. Xác thực khuôn mặt đúng <strong>không</strong> có nghĩa là tình huống an toàn. Tư vấn viên đã được báo để cùng bạn xem xét.</div>
+            <div class="evidence">
+              <div class="evidence-head"><div class="evidence-title">② G11 · Vì sao trợ lý dừng lại</div><span class="certainty">Thận trọng cao</span></div>
+              <p>Căn cứ hiển thị chỉ lấy từ lời bạn vừa nhắn; đây không phải kết luận về bạn hay lời giải thích quy tắc phát hiện gian lận.</p>
+              <div class="quote-tags"><span>“công an gọi”</span><span>“tài khoản tạm giữ”</span><span>“họ đang chờ máy”</span></div>
+            </div>
+            <div class="autonomy">
+              <div class="rule"><span class="rule-icon" aria-hidden="true">✓</span><span><b>Tự làm · giữ giao dịch</b>Tiền không tự đi tiếp. Nếu giữ nhầm, hệ thống hoặc tư vấn viên có thẩm quyền có thể gỡ giữ; AI không tự nhả.</span></div>
+              <div class="rule"><span class="rule-icon" aria-hidden="true">✓</span><span><b>Tự làm · chuyển người</b>Ca nghi bị lừa đã vào hàng ưu tiên. Thời gian chờ chỉ hiện theo hàng chờ thực.</span></div>
+              <div class="rule"><span class="rule-icon" aria-hidden="true">×</span><span><b>Cấm AI · nhả giao dịch</b>Không có nút “Nhả”. Chỉ hệ thống chống gian lận hoặc tư vấn viên có thẩm quyền quyết định theo quy trình riêng.</span></div>
+            </div>
+            <div class="advisor-card">
+              <div class="advisor-head"><span aria-hidden="true">●</span> Mô phỏng · tư vấn viên nhận ca ưu tiên</div>
+              <p>Trong sản phẩm thật, chỉ hiện thời gian chờ nếu có dữ liệu hàng chờ; bạn có thể xem nội dung được chia sẻ.</p>
+              <button type="button" class="btn btn-secondary" data-action="advisor-details">Xem tư vấn viên thấy gì</button>
+            </div>
+            <div class="actions">
+              <button type="button" class="btn btn-primary" data-action="stopped-call">Tôi đã dừng cuộc gọi</button>
+              <button type="button" class="btn btn-secondary" data-action="official-help">Kênh hỗ trợ chính thức</button>
+              <button type="button" class="btn btn-secondary" data-action="review">Yêu cầu tư vấn viên xem xét</button>
+              <button type="button" class="btn btn-danger" data-action="lock-wallet">Có đăng nhập lạ? Xem khóa ví</button>
+            </div>
+            <p class="fine-print">Yêu cầu xem xét không phải lệnh nhả. Nếu không ai duyệt kịp, giao dịch tiếp tục bị giữ; theo chính sách minh họa, hết hạn thì giao dịch tự hủy và tiền ở lại ví.</p>
+          `;
+        }
+      },
+      urgent: {
+        transaction: { amount: "12.000.000đ", recipient: "Bệnh viện · người nhận chưa xác minh", time: "Hôm nay · 10:38", state: "ĐANG GIỮ" },
+        user: "Đang đứng ở quầy viện phí, thanh toán 12 triệu bị giữ, người ta đợi sau lưng. Bấm vào đâu để đi tiếp vậy?",
+        render() {
+          return `
+            <div class="date-line">Hôm nay · cuộc trò chuyện về một giao dịch đang chờ</div>
+            <div class="transaction" aria-label="Thông tin giao dịch giả">
+              <div><div class="transaction-label">Giao dịch đang được giữ</div><div class="amount">${this.transaction.amount}</div><div class="recipient">${this.transaction.recipient}<br>${this.transaction.time}</div></div>
+              <span class="state-pill">${this.transaction.state}</span>
+            </div>
+            <div class="bubble user">${this.user}</div>
+            <div class="mini-label">Trợ lý AI · bước nhanh nhất trước</div>
+            <div class="bubble ai">Mình là trợ lý tự động (AI) của ví. Xin lỗi vì bạn phải chờ. Mình chưa thể xác định qua tin nhắn đây là tình huống nào, nên <strong>không tự nhả giao dịch</strong>. Bạn có thể gửi yêu cầu xác thực ngay hoặc chọn cách thanh toán khác.</div>
+            <div class="transaction">
+              <div><div class="transaction-label">Trạng thái tiền</div><div class="amount" style="font-size:15px">Chưa rời ví</div><div class="recipient">Giao dịch vẫn đang được giữ</div></div>
+              <span class="state-pill">AN TOÀN</span>
+            </div>
+            <div class="advisor-card">
+              <div class="advisor-head"><span aria-hidden="true">●</span> Mô phỏng · tư vấn viên được báo song song</div>
+              <p>Ca “gấp tại điểm thanh toán”. Nếu chưa có người nhận, màn hình phải nói rõ và không tạo cảm giác đã kết nối.</p>
+            </div>
+            <div class="actions">
+              <button type="button" class="btn btn-primary" data-action="verify">Xác thực ngay · cần bạn xác nhận</button>
+              <button type="button" class="btn btn-secondary" data-action="alternate">③ PAIR · Thanh toán cách khác</button>
+              <button type="button" class="btn btn-secondary" data-action="advisor-details">Xem thông tin chuyển tư vấn viên</button>
+            </div>
+            <div class="rule" style="margin-top:11px"><span class="rule-icon" aria-hidden="true">×</span><span><b>Cấm AI · nhả giao dịch</b>Xác thực đạt chỉ là một tín hiệu; AI không dùng kết quả đó để tự cho tiền đi tiếp.</span></div>
+          `;
+        }
+      },
+      unknown: {
+        render() {
+          return `<div class="date-line">Ca lạ · tin nhắn do người demo nhập</div>
+            <div class="bubble ai">Mình là trợ lý tự động (AI) của ví. Hãy nhập một câu giả lập ở ô bên phải để xem cách mình xử lý. Mình không nhận OTP, mật khẩu hay số thẻ đầy đủ.</div>
+            <div class="rule"><span class="rule-icon" aria-hidden="true">i</span><span><b>Luật không đổi theo cách diễn đạt</b>Ca lạ được trả lời theo quyền ở §4: AI không nêu ngưỡng phát hiện, không nhả giao dịch và không thao tác trên ví của người khác.</span></div>`;
+        }
+      }
+    };
+
+    let activeCase = "scam";
+    let toastTimer;
+
+    function renderCase(name) {
+      activeCase = name;
+      tabs.forEach(tab => tab.setAttribute("aria-pressed", String(tab.dataset.case === name)));
+      chat.innerHTML = cases[name].render();
+      chat.scrollTop = 0;
+    }
+
+    function showToast(message) {
+      window.clearTimeout(toastTimer);
+      toastRoot.innerHTML = "";
+      const toast = document.createElement("div");
+      toast.className = "toast";
+      toast.setAttribute("role", "status");
+      toast.textContent = message;
+      toastRoot.appendChild(toast);
+      toastTimer = window.setTimeout(() => toast.remove(), 4800);
+    }
+
+    function showModal(title, content, confirmLabel, onConfirm, onCancel) {
+      overlayRoot.innerHTML = "";
+      const backdrop = document.createElement("div");
+      backdrop.className = "modal-backdrop";
+      backdrop.innerHTML = `<section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <h2 id="modal-title"></h2><div class="modal-content"></div>
+        <div class="modal-actions"><button type="button" class="btn btn-secondary" data-cancel>Để sau</button><button type="button" class="btn btn-primary" data-confirm></button></div>
+      </section>`;
+      backdrop.querySelector("#modal-title").textContent = title;
+      backdrop.querySelector(".modal-content").innerHTML = content;
+      backdrop.querySelector("[data-confirm]").textContent = confirmLabel;
+      const cancelModal = () => {
+        overlayRoot.replaceChildren();
+        if (onCancel) onCancel();
+      };
+      backdrop.querySelector("[data-cancel]").addEventListener("click", cancelModal);
+      backdrop.querySelector("[data-confirm]").addEventListener("click", () => {
+        overlayRoot.replaceChildren();
+        onConfirm();
+      });
+      backdrop.addEventListener("click", event => {
+        if (event.target === backdrop) cancelModal();
+      });
+      overlayRoot.appendChild(backdrop);
+      backdrop.querySelector("[data-cancel]").focus();
+    }
+
+    function advisorDetails() {
+      const text = activeCase === "scam"
+        ? "Tư vấn viên thấy: nguyên văn tin nhắn; giao dịch 48.000.000đ, người nhận và thời điểm; kết quả xác thực đạt kèm cảnh báo “xác thực đạt không loại trừ bị thao túng”; nhãn ca nghi bị lừa. Không hiển thị ngưỡng hay quy tắc phát hiện."
+        : activeCase === "urgent"
+          ? "Tư vấn viên thấy: nguyên văn tin nhắn; giao dịch 12.000.000đ, người nhận và thời điểm; kết quả xác thực nếu có; thời gian khách đã chờ. Không hiển thị ngưỡng hay quy tắc phát hiện."
+          : "Tư vấn viên chỉ nhận nguyên văn tin nhắn và thông tin giao dịch liên quan nếu có. Không nhận OTP, mật khẩu, số thẻ đầy đủ hay ngưỡng phát hiện.";
+      showModal("Thông tin chia sẻ với tư vấn viên", `<p>${text}</p><div class="modal-note">Prototype chỉ mô phỏng phần xem trước; không gửi dữ liệu tới hệ thống nào.</div>`, "Đã hiểu", () => {});
+    }
+
+    function sendUnknownMessage(message) {
+      renderCase("unknown");
+      const user = document.createElement("div");
+      user.className = "bubble user";
+      user.textContent = message;
+      chat.appendChild(user);
+      const answer = document.createElement("div");
+      answer.className = "bubble ai";
+      answer.setAttribute("role", "status");
+      const lower = message.toLocaleLowerCase("vi");
+      let transferred = false;
+
+      if (/(dưới bao nhiêu|ngưỡng|bao nhiêu.*bị giữ|mức nào.*bị giữ)/i.test(lower)) {
+        answer.textContent = "Mình không thể cung cấp ngưỡng hoặc cách hệ thống phát hiện gian lận. Nếu giao dịch của bạn đang bị giữ, mình có thể hướng dẫn xác thực hoặc kết nối tư vấn viên.";
+      } else if (/(mẹ|má|bố|ba|cha|người thân|vợ|chồng).*(khóa|khoá|đang bị lừa)|((khóa|khoá).*(ví).*(mẹ|má|bố|ba|người thân))/i.test(lower)) {
+        transferred = true;
+        answer.textContent = "Mình không thể khóa ví của người khác từ cuộc trò chuyện này. Hãy nhờ chủ ví tự gọi 1900 54 54 41, bấm phím 1 để khóa khẩn cấp. Mình đã chuyển cuộc trò chuyện cho tư vấn viên hỗ trợ.";
+      } else if (/(nhả|nha giao dich|cho.*đi tiếp|cho qua).*(giao dịch|tiền)?/i.test(lower) || /(giao dịch|tiền).*(nhả|cho đi tiếp|cho qua)/i.test(lower)) {
+        transferred = true;
+        answer.textContent = "Mình không thể nhả giao dịch đang bị giữ, kể cả khi bạn yêu cầu. Mình đã chuyển cuộc trò chuyện cho tư vấn viên có thẩm quyền xem xét. Trong lúc chờ, giao dịch vẫn được giữ và không tự nhả.";
+      } else if (/(otp|mật khẩu|mat khau|số thẻ|so the)/i.test(lower)) {
+        transferred = true;
+        answer.textContent = "Đừng gửi OTP, mật khẩu hoặc số thẻ đầy đủ trong chat. Mình không cần những thông tin đó. Nếu bạn nghi có người truy cập ví, hãy dùng kênh khóa ví khẩn cấp chính thức. Mình đã chuyển cuộc trò chuyện cho tư vấn viên.";
+      } else if (/(hoàn tiền|hoan tien|trừ tiền|tru tien|đã chuyển|da chuyen)/i.test(lower)) {
+        answer.textContent = "Mình không xem được giao dịch đã hoàn tất từ chat này nên không thể kết luận hay hứa hoàn tiền. Hãy mở lịch sử giao dịch và gửi yêu cầu tra soát qua kênh chính thức.";
+      } else {
+        answer.textContent = "Mình chưa đủ thông tin để kết luận và sẽ không tự thao tác. Bạn đang hỏi về giao dịch nào — giao dịch đang bị giữ hay khoản đã hoàn tất?";
+      }
+      chat.appendChild(answer);
+      const handoff = document.createElement("div");
+      handoff.className = "advisor-card";
+      handoff.innerHTML = `<div class="advisor-head"><span aria-hidden="true">●</span> ${transferred ? "Mô phỏng · đã chuyển tư vấn viên" : "Tư vấn viên sẵn sàng nếu bạn yêu cầu"}</div><p>AI không tự nhả giao dịch, không nói ngưỡng và không thao tác trên ví người khác.</p>${transferred ? "" : '<button type="button" class="btn btn-secondary" data-action="handoff">Chuyển tư vấn viên · không cần duyệt</button> '}<button type="button" class="btn btn-secondary" data-action="advisor-details">Xem dữ liệu sẽ chia sẻ</button>`;
+      chat.appendChild(handoff);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    document.addEventListener("click", event => {
+      const tab = event.target.closest("[data-case]");
+      if (tab) {
+        renderCase(tab.dataset.case);
+        return;
+      }
+      const action = event.target.closest("[data-action]")?.dataset.action;
+      if (!action) return;
+
+      if (action === "advisor-details") advisorDetails();
+      if (action === "handoff") {
+        const card = chat.querySelector(".advisor-card");
+        const button = event.target.closest("[data-action='handoff']");
+        card.querySelector(".advisor-head").textContent = "Mô phỏng · đã chuyển tư vấn viên";
+        button.remove();
+        showToast("Đã mô phỏng chuyển cuộc trò chuyện; tư vấn viên nhận tin nhắn và thông tin giao dịch liên quan.");
+      }
+      if (action === "stopped-call") showToast("Tốt. Đừng chuyển tiền hoặc làm theo hướng dẫn của người đang gọi. Tư vấn viên vẫn đang nhận ca.");
+      if (action === "official-help") showModal("Kênh hỗ trợ chính thức", `<p>Gọi <strong>1900 63 68 05</strong> để báo giao dịch có dấu hiệu lừa đảo. Nếu nghi bị chiếm ví, gọi <strong>1900 54 54 41</strong>, bấm phím 1 để khóa khẩn cấp.</p><div class="modal-note">Bản demo không thực hiện cuộc gọi. Không gọi theo số do người lạ cung cấp.</div>`, "Đã hiểu", () => {});
+      if (action === "review") showModal("Gửi yêu cầu xem xét", `<p>Yêu cầu này chỉ chuyển thông tin cho tư vấn viên có thẩm quyền. Đây <strong>không phải</strong> lệnh nhả và không làm tiền rời ví.</p><div class="modal-note">Nếu chưa có ai duyệt kịp, giao dịch vẫn bị giữ; khi hết hạn theo chính sách minh họa, giao dịch tự hủy.</div>`, "Gửi yêu cầu", () => showToast("Đã mô phỏng gửi yêu cầu xem xét. Giao dịch vẫn đang bị giữ; AI không nhả."));
+      if (action === "lock-wallet") showModal("Xác nhận khóa toàn bộ ví", `<p>Chỉ chủ ví đang đăng nhập mới được xác nhận. Khóa ví sẽ chặn các chức năng của <strong>toàn bộ ví</strong> (không chỉ thẻ); mở lại phải qua tổng đài và có thể mất nhiều giờ.</p><div class="modal-note">Nếu không xác nhận, ví chưa bị khóa. Theo §4, AI sẽ nhắc một lần và chuyển tư vấn viên; bạn cũng có thể gọi 1900 54 54 41, bấm phím 1 để khóa khẩn cấp. Bản demo không tác động tài khoản thật.</div>`, "Xác nhận khóa ví demo", () => showToast("Đã mô phỏng khóa ví sau xác nhận. Tư vấn viên được báo; không có tài khoản thật bị tác động."), () => showToast("Mô phỏng: ví chưa bị khóa; tư vấn viên được chuyển để hỗ trợ. Gọi 1900 54 54 41, bấm phím 1 nếu cần khóa khẩn cấp."));
+      if (action === "verify") showModal("Xác nhận gửi bước xác thực", `<div class="transaction"><div><div class="transaction-label">Giao dịch</div><div class="amount">12.000.000đ</div><div class="recipient">Bệnh viện · đang bị giữ</div></div><span class="state-pill">CHỜ BẠN</span></div><p>Bạn sẽ xác thực trong màn hình chính thức của ví bằng khuôn mặt hoặc mã một lần. <strong>Không gửi mã cho tư vấn viên hay trong chat.</strong></p><div class="modal-note">Xác thực đạt không có nghĩa giao dịch an toàn và không làm giao dịch tự nhả. Nếu không xác nhận, không gửi bước xác thực; giao dịch vẫn bị giữ.</div>`, "Đồng ý · gửi bước xác thực", () => showModal("Bước xác thực đã gửi · mô phỏng", `<p>Trong sản phẩm thật, bước xác thực sẽ mở ở màn hình bảo mật của ví. Prototype không dùng camera hay OTP.</p><p><strong>Kết quả mô phỏng:</strong> xác thực hoàn tất. Hệ thống đánh giá lại; AI không nhả giao dịch. Tư vấn viên đã được báo song song.</p>`, "Đóng", () => {}));
+      if (action === "alternate") showModal("Thanh toán cách khác", `<p>Giao dịch <strong>12.000.000đ vẫn đang trong ví, chưa bị trừ</strong>. Bạn có thể chọn phương thức thanh toán khác tại quầy; giao dịch đang giữ không tự được nhả.</p><div class="modal-note">PAIR · Errors + Graceful Failure: có đường lui để khách thật đang gấp không phải chờ AI quyết định.</div>`, "Đã hiểu", () => {});
+    });
+
+    document.getElementById("unknown-form").addEventListener("submit", event => {
+      event.preventDefault();
+      const field = document.getElementById("unknown-message");
+      const message = field.value.trim();
+      if (!message) {
+        field.focus();
+        showToast("Nhập một câu giả lập trước khi gửi.");
+        return;
+      }
+      sendUnknownMessage(message);
+      field.value = "";
+    });
+
+    document.getElementById("clear-unknown").addEventListener("click", () => {
+      document.getElementById("unknown-message").value = "";
+      renderCase("unknown");
+    });
+
+    renderCase("scam");
+  </script>
+</body>
+</html>

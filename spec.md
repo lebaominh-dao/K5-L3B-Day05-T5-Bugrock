@@ -179,9 +179,26 @@ Hoàng Minh và Thái chọn `khoa_vi`, Bảo Minh chọn `giu_giao_dich`. Nhóm
 Cấm `nha_giao_dich` đổi lời hứa từ *"AI tự giúp giao dịch đi tiếp ngay"* thành *"AI giữ tiền an toàn và đưa bạn tới đường nhanh nhất, còn người cho tiền đi là hệ thống hoặc người thật"*. Trên màn hình, điều này hiện thành câu *"Mình không tự cho giao dịch đi tiếp được"* (§3) và việc không có nút Nhả.
 
 ## §5. Prototype  (chặng 5)
-- Link hoặc file · công cụ · phần nào mock · có lời gọi AI thật không.
-- 1–2 ảnh có đánh số; mỗi số: thể hiện gì · nguyên tắc HAX/PAIR nào · mức tự chủ nào.
-- Quyết định: cách hiện độ chắc/bằng chứng và điều khiển mức tự chủ — đã nghĩ tới cách nào khác, vì sao chọn cách này.
+
+**Prototype:** [prototype/index.html](./prototype/index.html) · mở trực tiếp bằng trình duyệt, không cần cài đặt hay mạng. Dựng bằng HTML/CSS/JavaScript thuần; **toàn bộ** giao dịch, tin nhắn, xác thực, chuyển tư vấn viên và khóa ví đều là mô phỏng, không có backend, không kết nối MoMo, không tác động tài khoản thật. Không có lời gọi AI thật, không làm bonus.
+
+**Luồng demo bắt buộc (K1 · bị giả danh công an, đòi nhả 48 triệu):**
+1. Mở K1 mặc định. Chỉ vào giao dịch đang giữ, cảnh báo “dừng lại”, việc xác thực khuôn mặt đạt không chứng minh an toàn, và không có nút Nhả hay nút xác thực mới (luật §4: không hiện xác thực khi có dấu hiệu bị lừa).
+2. Chỉ vào căn cứ trích từ chính tin nhắn và thẻ tư vấn viên. Bấm **[Xem tư vấn viên thấy gì]** để mở nội dung chia sẻ; không lộ ngưỡng hay quy tắc phát hiện gian lận.
+3. Bấm **[Yêu cầu tư vấn viên xem xét]**. Màn xác nhận nói rõ đây không phải lệnh nhả; nếu không ai duyệt kịp, giao dịch vẫn giữ, hết hạn theo chính sách nhóm thì tự hủy. Thử **[Kênh hỗ trợ chính thức]** hoặc **[Tôi đã dừng cuộc gọi]** để demo bước tiếp an toàn.
+4. Đổi sang K2 để cho thấy đối trọng: giao dịch viện phí có nút **[Xác thực ngay]**. Trước khi gửi, chủ ví thấy số tiền, người nhận, cảnh báo về xác thực và phải bấm xác nhận; nếu xác thực xong, AI vẫn không tự nhả. **[Thanh toán cách khác]** là đường lui cho khách đang gấp.
+5. Dùng **[Có đăng nhập lạ? Xem khóa ví]** để trình bày bước duyệt khóa toàn ví, hệ quả và cách mở lại. Nếu chủ ví không xác nhận, ví chưa khóa; mô phỏng nhắc một lần và chuyển tư vấn viên.
+6. Chọn **Ca lạ · Tự nhập** để thử câu hỏi về ngưỡng, yêu cầu nhả, người thân nhờ khóa ví, OTP hoặc giao dịch đã hoàn tất. Prototype từ chối đúng phạm vi và hỏi lại khi thông tin còn mơ hồ; chỉ dùng dữ liệu giả.
+
+**Điểm trên màn hình (đánh số ngay trong prototype):**
+- **① G10 — Thu hẹp phạm vi khi nghi ngờ:** cảnh báo K1 bảo dừng, nói AI không nhả và không mở bước xác thực mới; ở K2 chỉ đưa bước xác thực cần chủ ví xác nhận.
+- **② G11 — Giải thích vì sao:** thẻ căn cứ trích ba cụm từ trong lời người dùng, đồng thời ghi rõ đây không phải lời giải thích quy tắc chống gian lận.
+- **③ PAIR · Errors + Graceful Failure:** nút **[Thanh toán cách khác]** và trạng thái “Chưa rời ví” ở K2 cho khách thật đang gấp một đường lui.
+- **G1:** đầu khung chat ghi rõ **“Trợ lý tự động (AI)”** và footer ghi prototype không kết nối dịch vụ thật.
+
+Mức tự chủ cũng được ghi ngay cạnh thao tác: giữ giao dịch có thể được hệ thống/tư vấn viên có thẩm quyền gỡ (AI không tự nhả); xác thực và khóa ví có màn xác nhận trước hành động; chuyển tư vấn viên được mô phỏng không cần thêm lượt duyệt; nhả giao dịch bị cấm và không có nút gọi tool. Ca lạ không đổi các quyền này.
+
+**Lựa chọn thiết kế:** chọn một màn hình chat tương tác với bộ chọn kịch bản thay vì nhiều màn riêng, để demo K1, đối chiếu K2 và ca lạ trong một luồng ngắn mà vẫn thấy trạng thái tiền, căn cứ, bước duyệt và đường chuyển người. Không làm màn hình tư vấn viên riêng vì lát cắt là chat người dùng và phần đó là bonus; chỉ cho xem trước dữ liệu tư vấn viên nhận. Không dùng AI thật hoặc lời hứa phân loại tự động vì bài tập không cần chatbot, và câu trả lời dựng giúp TA kiểm tra nhất quán mức tự chủ. Thời gian chờ, xác thực, hotline, khóa ví và chuyển người đều ghi rõ là mô phỏng, không tự nhận đã thực hiện thật.
 
 ## §6. Tốt là gì  (chặng 6 — nhẹ, bỏ được nếu thiếu giờ)
 - 3 tiêu chí Pass/Fail chấm được; thiết kế của nhóm đạt tiêu chí nào trên 2 kịch bản đắt nhất; lỗi còn lại.
