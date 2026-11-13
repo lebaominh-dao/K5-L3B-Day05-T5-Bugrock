@@ -1,12 +1,12 @@
-# Dàn ý bài nộp
+# Bài nộp LAB5 — T5 Ví điện tử · Nhóm Bugrock
 
 **Lớp:** L3b · **Bàn / zone:** 7 · **Track:** 5
 
 | Họ và Tên | Mã Học Viên | Việc đã làm |
 |---|---|---|
-| Trần Phú Thái | 2A202604001 | Hỗ trợ sắp xếp mức tự chủ, tạo prototype |
-| Đặng Khắc Hoàng Minh |2A202604082 |Làm phần 4 xếp mức trước rồi mới so. và phần 6|
-| Đào Lê Bảo Minh | 2A202604010 |  |
+| Trần Phú Thái | 2A202604001 | §4: tự xếp mức cho 5 tool, viết bản §4 (người duyệt thấy gì, quá hạn thì sao, thử mức trên K1, K2, K3) · §5: dựng prototype `prototype/index.html` và ảnh `prototype/demo.png` |
+| Đặng Khắc Hoàng Minh | 2A202604082 | §4: tự xếp mức cho 5 tool, viết bản §4 đầu tiên (mức và cost-of-error từng tool, phân tích `khoa_vi`, luật thêm, lời hứa với người dùng) · §6: ba tiêu chí Pass/Fail và chấm thử trên K1, K2 |
+| Đào Lê Bảo Minh | 2A202604010 | §1 lát cắt và phạm vi · §2 11 kịch bản rủi ro, chọn 2 kịch bản đắt nhất · §3 thiết kế khi AI sai cho K1, K2 · §4: tự xếp mức cho 5 tool, tổng hợp ý kiến ba người và chốt mức · Slide demo `demo-slides/index.html`, gắn lời gọi Claude thật · §7 |
 
 ## §1. Lát cắt & phạm vi
 
@@ -180,7 +180,7 @@ Cấm `nha_giao_dich` đổi lời hứa từ *"AI tự giúp giao dịch đi ti
 
 ## §5. Prototype  (chặng 5)
 
-**Prototype:** [prototype/index.html](./prototype/index.html) · mở trực tiếp bằng trình duyệt, không cần cài đặt hay mạng. Dựng bằng HTML/CSS/JavaScript thuần; **toàn bộ** giao dịch, tin nhắn, xác thực, chuyển tư vấn viên và khóa ví đều là mô phỏng, không có backend, không kết nối MoMo, không tác động tài khoản thật. Không có lời gọi AI thật, không làm bonus.
+**Prototype:** [prototype/index.html](./prototype/index.html) · mở trực tiếp bằng trình duyệt, không cần cài đặt hay mạng. Dựng bằng HTML/CSS/JavaScript thuần; **toàn bộ** giao dịch, tin nhắn, xác thực, chuyển tư vấn viên và khóa ví đều là mô phỏng, không có backend, không kết nối MoMo, không tác động tài khoản thật. Bản prototype này không gọi AI thật; lời gọi Claude thật nằm ở bản slide demo (xem cuối mục).
 
 **Luồng demo bắt buộc (K1 · bị giả danh công an, đòi nhả 48 triệu):**
 1. Mở K1 mặc định. Chỉ vào giao dịch đang giữ, cảnh báo “dừng lại”, việc xác thực khuôn mặt đạt không chứng minh an toàn, và không có nút Nhả hay nút xác thực mới (luật §4: không hiện xác thực khi có dấu hiệu bị lừa).
@@ -196,9 +196,23 @@ Cấm `nha_giao_dich` đổi lời hứa từ *"AI tự giúp giao dịch đi ti
 - **③ PAIR · Errors + Graceful Failure:** nút **[Thanh toán cách khác]** và trạng thái “Chưa rời ví” ở K2 cho khách thật đang gấp một đường lui.
 - **G1:** đầu khung chat ghi rõ **“Trợ lý tự động (AI)”** và footer ghi prototype không kết nối dịch vụ thật.
 
+**Ảnh chụp K1:** [prototype/demo.png](./prototype/demo.png)
+
+![Prototype K1](./prototype/demo.png)
+
+- **Khung đỏ · Giao dịch đang giữ:** 48.000.000đ, nhãn “Đang giữ”. Người dùng thấy tiền chưa rời ví (PAIR · Errors + Graceful Failure).
+- **Khung vàng · Yêu cầu của khách hàng:** tin nhắn K1 nguyên văn, đòi nhả dù đã quét mặt.
+- **Khung xanh · Phần trả lời và thao tác:** ① G10 “Dừng lại, đừng chuyển tiền”; ② G11 thẻ “Vì sao trợ lý dừng lại” trích ba cụm từ của người dùng; ba dòng mức tự chủ: giữ giao dịch (tự làm), chuyển tư vấn viên (tự làm), nhả giao dịch (cấm, không có nút).
+
 Mức tự chủ cũng được ghi ngay cạnh thao tác: giữ giao dịch có thể được hệ thống/tư vấn viên có thẩm quyền gỡ (AI không tự nhả); xác thực và khóa ví có màn xác nhận trước hành động; chuyển tư vấn viên được mô phỏng không cần thêm lượt duyệt; nhả giao dịch bị cấm và không có nút gọi tool. Ca lạ không đổi các quyền này.
 
 **Lựa chọn thiết kế:** chọn một màn hình chat tương tác với bộ chọn kịch bản thay vì nhiều màn riêng, để demo K1, đối chiếu K2 và ca lạ trong một luồng ngắn mà vẫn thấy trạng thái tiền, căn cứ, bước duyệt và đường chuyển người. Không làm màn hình tư vấn viên riêng vì lát cắt là chat người dùng và phần đó là bonus; chỉ cho xem trước dữ liệu tư vấn viên nhận. Không dùng AI thật hoặc lời hứa phân loại tự động vì bài tập không cần chatbot, và câu trả lời dựng giúp TA kiểm tra nhất quán mức tự chủ. Thời gian chờ, xác thực, hotline, khóa ví và chuyển người đều ghi rõ là mô phỏng, không tự nhận đã thực hiện thật.
+
+**Slide demo có lời gọi Claude thật:** [demo-slides/index.html](./demo-slides/index.html) (13 slide, HTML thuần, publish thành artifact trên claude.ai để demo).
+- **Slide 4 · Thử trợ lý:** điện thoại ở giữa chỉ có khung chat; bên trái là nút “Soạn tin nhắn mới” và 5 kịch bản nổi bật (K4 ①, K6 ②, K9 ③, K1 và K2 ④); bên phải là trạng thái ví (số dư khả dụng, khoản đang giữ, trạng thái xác minh/khoá) và nút cho người thuyết trình.
+- **Hai nguồn trả lời:** “Mô phỏng” dùng câu trả lời dựng từ §3; “Claude thật” gửi cuộc trò chuyện cho Claude qua capability `sample` của artifact, chạy bằng tài khoản Claude của người đang xem. **Không có API key trong code.** Prompt gồm 14 luật lấy từ §3–§4 và bắt Claude trả về JSON (câu trả lời, trạng thái từng tool, nút cần hiện); prompt sửa được ngay trên trang.
+- **Mức tự chủ giữ bằng code, không chỉ bằng prompt:** dù Claude trả lời thế nào, `nha_giao_dich` luôn bị cấm, `khoa_vi` chỉ chạy khi chủ ví bấm, tin có dấu hiệu bị lừa thì code bỏ nút xác thực và tự giữ giao dịch. Mỗi lần code chặn được ghi vào log (nút “Prompt và log”). Đây là ví dụ cho “lỗi sửa câu chữ không cứu được” ở §3: prompt là câu chữ, còn lớp chặn là thiết kế.
+- **Vì sao làm slide thay vì chỉ mở prototype:** prototype nhiều tính năng trên một màn hình, người xem dễ không biết nhìn vào đâu. Slide dẫn người xem qua lát cắt, tool, kịch bản, mức tự chủ rồi mới tới màn hình thử, và màn hình thử chỉ giữ những gì người dùng thấy.
 
 ## §6. Tốt là gì  (chặng 6 — nhẹ, bỏ được nếu thiếu giờ)
 
@@ -213,4 +227,7 @@ Ba tiêu chí dưới đây có thể chấm bằng cách bấm lại K1 và K2 
 **Kết quả:** prototype đạt cả ba tiêu chí trên K1 và K2 theo các luồng đã dựng. **Lỗi còn lại:** prototype dùng rule và kịch bản giả, nên chưa hiểu ổn định mọi cách diễn đạt hoặc phân biệt chắc chắn người thật đang gấp với kẻ lừa giả làm tình huống viện phí. Trong ca chưa nhận diện được, prototype hỏi lại hoặc chuyển tư vấn viên; nếu giao dịch vẫn bị giữ, người dùng thật vẫn có thể phải chờ.
 
 ## §7. Demo
-- Ca lạ nhận được ở demo: prototype đã làm gì, và nhóm có đổi ý gì sau ca đó không.
+
+- **Cách demo:** nhóm trình bày bằng slide demo (`demo-slides/index.html`), bật “Claude thật” ở slide 4 để chạy các kịch bản bằng lời gọi Claude thật.
+- **Ca lạ:** nhóm không nhận được ca lạ nào trong buổi demo, nên không có thay đổi thiết kế nào sau demo.
+- **Đã chuẩn bị cho ca lạ:** nút “Soạn tin nhắn mới” ở slide 4 cho phép gõ bất kỳ tin nhắn nào và gửi cho Claude thật. Mức tự chủ §4 vẫn được lớp chặn trong code giữ nguyên với tin nhắn lạ.
