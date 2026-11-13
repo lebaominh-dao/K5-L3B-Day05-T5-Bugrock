@@ -201,7 +201,16 @@ Mức tự chủ cũng được ghi ngay cạnh thao tác: giữ giao dịch có
 **Lựa chọn thiết kế:** chọn một màn hình chat tương tác với bộ chọn kịch bản thay vì nhiều màn riêng, để demo K1, đối chiếu K2 và ca lạ trong một luồng ngắn mà vẫn thấy trạng thái tiền, căn cứ, bước duyệt và đường chuyển người. Không làm màn hình tư vấn viên riêng vì lát cắt là chat người dùng và phần đó là bonus; chỉ cho xem trước dữ liệu tư vấn viên nhận. Không dùng AI thật hoặc lời hứa phân loại tự động vì bài tập không cần chatbot, và câu trả lời dựng giúp TA kiểm tra nhất quán mức tự chủ. Thời gian chờ, xác thực, hotline, khóa ví và chuyển người đều ghi rõ là mô phỏng, không tự nhận đã thực hiện thật.
 
 ## §6. Tốt là gì  (chặng 6 — nhẹ, bỏ được nếu thiếu giờ)
-- 3 tiêu chí Pass/Fail chấm được; thiết kế của nhóm đạt tiêu chí nào trên 2 kịch bản đắt nhất; lỗi còn lại.
+
+Ba tiêu chí dưới đây có thể chấm bằng cách bấm lại K1 và K2 trong prototype, quan sát câu trả lời, trạng thái giao dịch và các nút. **Pass** khi toàn bộ điều kiện trong tiêu chí được đáp ứng; thiếu một điều kiện là **Fail**.
+
+| Tiêu chí Pass/Fail | K1 · bị giả danh công an, đòi nhả 48 triệu | K2 · đang ở quầy viện phí, giao dịch 12 triệu bị giữ |
+|---|---|---|
+| **1. AI không tự nhả giao dịch:** không gọi `nha_giao_dich`, không hiện nút Nhả, và xác thực đạt không làm giao dịch tự đi tiếp. | **Pass.** Giao dịch vẫn hiện “Đang giữ”; không có nút Nhả hay xác thực mới. | **Pass.** Có bước xác thực với xác nhận của người dùng; kết quả mô phỏng ghi rõ hệ thống đánh giá lại và AI không nhả. |
+| **2. Người dùng có bước tiếp theo an toàn mà không phải hỏi vòng vo:** thông tin và hành động trên màn hình phù hợp với tình huống; nếu cần người thật thì đường chuyển người được nêu rõ. | **Pass.** AI bảo dừng chuyển tiền, nêu kênh hỗ trợ và mô phỏng chuyển tư vấn viên ưu tiên. | **Pass.** Có nút xác thực, lựa chọn thanh toán cách khác và thông tin chuyển tư vấn viên song song. |
+| **3. AI nói rõ căn cứ và giới hạn:** nhận diện mình là AI, cho người dùng biết trạng thái tiền, không bịa lý do bị giữ hoặc tiết lộ ngưỡng/quy tắc phát hiện. | **Pass.** Hiện trạng thái đang giữ, trích căn cứ từ chính tin nhắn và nói rõ xác thực đạt không chứng minh an toàn. | **Pass.** Hiện tiền chưa rời ví, nói AI không tự nhả; không nêu lý do hay ngưỡng bị giữ. |
+
+**Kết quả:** prototype đạt cả ba tiêu chí trên K1 và K2 theo các luồng đã dựng. **Lỗi còn lại:** prototype dùng rule và kịch bản giả, nên chưa hiểu ổn định mọi cách diễn đạt hoặc phân biệt chắc chắn người thật đang gấp với kẻ lừa giả làm tình huống viện phí. Trong ca chưa nhận diện được, prototype hỏi lại hoặc chuyển tư vấn viên; nếu giao dịch vẫn bị giữ, người dùng thật vẫn có thể phải chờ.
 
 ## §7. Demo
 - Ca lạ nhận được ở demo: prototype đã làm gì, và nhóm có đổi ý gì sau ca đó không.
