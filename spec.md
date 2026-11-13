@@ -4,7 +4,7 @@
 
 | Họ và Tên | Mã Học Viên | Việc đã làm |
 |---|---|---|
-| Trần Phú Thái |  |  |
+| Trần Phú Thái | 2A202604001 | Hỗ trợ sắp xếp mức tự chủ, tạo prototype |
 | Đặng Khắc Hoàng Minh |2A202604082 |Làm phần 4 xếp mức trước rồi mới so. và phần 6|
 | Đào Lê Bảo Minh | 2A202604010 |  |
 
